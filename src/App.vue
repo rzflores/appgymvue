@@ -26,14 +26,19 @@
       </div>
 
       <v-spacer></v-spacer>
-
       <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
+        href="/tienda"        
         text
       >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
+        <span class="mr-2">Tienda</span>
+        <v-icon>mdi-alarm-panel</v-icon>
+      </v-btn>
+      <v-btn
+        href="/inventario"        
+        text
+      >
+        <span class="mr-2">Inventario</span>
+        <v-icon>mdi-archive</v-icon>
       </v-btn>
     </v-app-bar>
 
@@ -49,7 +54,7 @@ export default {
   name: 'App',
 
   data: () => ({
-    //
+   
   }),
 };
 </script>
