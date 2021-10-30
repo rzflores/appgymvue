@@ -94,11 +94,11 @@
         </v-dialog>
         <v-dialog v-model="dialogDelete" max-width="500px">
           <v-card>
-            <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
+            <v-card-title class="text-h5">¿Deseas eliminar este producto?</v-card-title>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-              <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
+              <v-btn color="blue darken-1" text @click="closeDelete">Cancelar</v-btn>
+              <v-btn color="blue darken-1" text @click="deleteItemConfirm">Aceptar</v-btn>
               <v-spacer></v-spacer>
             </v-card-actions>
           </v-card>
@@ -134,36 +134,30 @@
 
 
 <script>
+    let url = "http://127.0.0.1:8000/api/productos";
   export default {
       name : 'TablaProductos',
     data: () => ({
       dialog: false,
       dialogDelete: false,
       headers: [
-        {
-          text: 'Id',
-          align: 'start',
-          sortable: false,
-          value: 'id',
-        },
-        { text: 'Nombre', value: 'nombre' },
-        { text: 'Precio', value: 'precio' },
-        { text: 'Cantidad', value: 'cantidad' },        
-        { text: 'Actions', value: 'actions', sortable: false },
+        { text: 'Id',align: 'start',sortable: false,value: 'id', class:"black white--text"},
+        { text: 'Nombre', value: 'nombre', class:"black white--text" },
+        { text: 'Precio', value: 'precio' , class:"black white--text"},
+        { text: 'Cantidad', value: 'cantidad' , class:"black white--text"},        
+        { text: 'Actions', value: 'actions', sortable: false, class:"black white--text" },
       ],
       desserts: [],
       editedIndex: -1,
       editedItem: {         
-        name: '',
-        calories: 0,
-        fat: 0,
-        carbs: 0,        
+        nombre: '',
+        precio: 0,
+        cantidad: 0,
       },
       defaultItem: {
-        name: '',
-        calories: 0,
-        fat: 0,
-        carbs: 0,        
+        nombre: '',
+        precio: 0,
+        cantidad: 0,               
       },
     }),
 
@@ -188,58 +182,29 @@
 
     methods: {
       initialize () {
-        this.desserts = [
-          {
-              id: 1, 
-            nombre: 'Frozen Yogurt',
-            precio: 159,
-            cantidad: 6.0,          
-          },
-          {
-              id: 2, 
-            nombre: 'Ice cream sandwich',
-            precio: 237,
-            cantidad: 9.0,    
-          },
-          {
-              id: 3, 
-            nombre: 'Eclair',
-            precio: 262,
-            cantidad: 16.0,
-
-          },
-          {
-              id: 4, 
-            nombre: 'Cupcake',
-            precio: 305,
-            cantidad: 3.7,     
-          },
-          {
-              id: 5, 
-            nombre: 'Gingerbread',
-            precio: 356,
-            cantidad: 16.0,     
-          },
-          {
-              id: 6, 
-            nombre: 'Jelly bean',
-            precio: 375,
-            cantidad: 0.0,
-            
-          },          
-        ]
+          this.axios.get(url).then(response => {
+                   this.desserts = response.data;                   
+          });
+     
       },
 
       editItem (item) {
         this.editedIndex = this.desserts.indexOf(item)
         this.editedItem = Object.assign({}, item)
         this.dialog = true
+     
       },
 
       deleteItem (item) {
         this.editedIndex = this.desserts.indexOf(item)
         this.editedItem = Object.assign({}, item)
-        this.dialogDelete = true
+        this.dialogDelete = true;
+      
+        this.axios.delete(url + '/' + item.id)
+            .then(response =>{
+                    console.log(response);
+                    this.initialize();
+                });
       },
 
       deleteItemConfirm () {
@@ -265,9 +230,30 @@
 
       save () {
         if (this.editedIndex > -1) {
-          Object.assign(this.desserts[this.editedIndex], this.editedItem)
+          Object.assign(this.desserts[this.editedIndex], this.editedItem)            
+
+             this.axios.put(url + '/' + this.editedItem.id,{
+                nombre : this.editedItem.nombre,
+                cantidad: parseInt(this.editedItem.cantidad),
+                precio: parseFloat(this.editedItem.precio)
+            })
+            .then(response =>{
+                    console.log(response);
+                    this.initialize();
+                });  
+
         } else {
-          this.desserts.push(this.editedItem)
+            
+            this.axios.post(url,{
+                nombre : this.editedItem.nombre,
+                cantidad: parseInt(this.editedItem.cantidad),
+                precio: parseFloat(this.editedItem.precio)
+                
+            })
+            .then(response =>{
+                    console.log(response);
+                    this.initialize();
+                });                     
         }
         this.close()
       },
