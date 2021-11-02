@@ -1,7 +1,9 @@
 <template>
-
+ 
 <div>
-    <TablaProductos :titleProductos="Productos"></TablaProductos>
+  
+    <TablaProductos titleProductos="Gestiona Tu Inventario" :isInventario="true"></TablaProductos>
+   
 </div>
 
 
@@ -12,7 +14,7 @@
 
   export default {
     name: 'Inventario',
-
+    
     components: {
       TablaProductos
     },

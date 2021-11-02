@@ -1,26 +1,39 @@
 <template>
+  <div>
+    <v-text-field v-if="!isInventario"
+        v-model="search"
+        append-icon="mdi-magnify"
+        label="Search"
+        single-line
+        hide-details        
+      ></v-text-field>
   <v-data-table
     :headers="headers"
     :items="desserts"
     sort-by="calories"
     class="elevation-1"
+     :search="search"
   >
     <template v-slot:top>
       <v-toolbar
         flat
       >
-        <v-toolbar-title>{{ titleProductos }}o</v-toolbar-title>
+        <v-toolbar-title>{{ titleProductos }} </v-toolbar-title>      
+        
         <v-divider
           class="mx-4"
           inset
           vertical
         ></v-divider>
+        
         <v-spacer></v-spacer>
         <v-dialog
           v-model="dialog"
           max-width="500px"
         >
-          <template v-slot:activator="{ on, attrs }">
+          <template
+          v-if="isInventario"
+           v-slot:activator="{ on, attrs }">
             <v-btn
               color="primary"
               dark
@@ -33,7 +46,8 @@
           </template>
           <v-card>
             <v-card-title>
-              <span class="text-h5">{{ formTitle }}</span>
+             
+            
             </v-card-title>
 
             <v-card-text>
@@ -106,38 +120,42 @@
       </v-toolbar>
     </template>
     <template v-slot:item.actions="{ item }">
-      <v-icon
+      <v-icon v-if="isInventario"
         small
         class="mr-2"
         @click="editItem(item)"
       >
         mdi-pencil
       </v-icon>
-      <v-icon
+      <v-icon v-if="isInventario"
         small
         @click="deleteItem(item)"
       >
         mdi-delete
       </v-icon>
+       <v-icon v-if="!isInventario"
+        small
+        @click="addProducto(item)"
+      >
+        mdi-plus-circle
+      </v-icon>
     </template>
     <template v-slot:no-data>
-      <v-btn
-        color="primary"
-        @click="initialize"
-      >
-        Reset
-      </v-btn>
+      No existen Productos
     </template>
   </v-data-table>
+  </div>
 </template>
 
 
 
 <script>
+ import { mapState,mapMutations } from "vuex"
     let url = "http://127.0.0.1:8000/api/productos";
   export default {
       name : 'TablaProductos',
     data: () => ({
+      search: '',
       dialog: false,
       dialogDelete: false,
       headers: [
@@ -162,6 +180,7 @@
     }),
 
     computed: {
+      ...mapState(['PuntoVenta','idVenta','Inventario']),
       formTitle () {
         return this.editedIndex === -1 ? 'Nuevo' : 'Editar'
       },
@@ -180,15 +199,20 @@
       this.initialize()
     },
     props : {
-        titleProductos : null,
+        titleProductos : String,
+        isInventario: Boolean,
     },
     methods: {
+      ...mapMutations(['aumentarIdVenta','mapearInventaraio','cambiarCantidadInventario']),
       initialize () {
           this.axios.get(url).then(response => {
-                   this.desserts = response.data;                   
+                   this.desserts = response.data;                                                           
+                   this.mapearInventaraio(this.desserts);
           });
-     
+          
+          
       },
+      
 
       editItem (item) {
         this.editedIndex = this.desserts.indexOf(item)
@@ -208,7 +232,21 @@
                     this.initialize();
                 });
       },
+      addProducto(item){
+         this.editedIndex = this.desserts.indexOf(item)  
+         this.aumentarIdVenta() ;          
+         this.PuntoVenta.push({
+           idventa : this.idVenta,
+           nombre : item.nombre,
+           precio : item.precio,
+           cantidad : 0 ,
+           total : 0
+         })
+         
 
+         
+         
+      },
       deleteItemConfirm () {
         this.desserts.splice(this.editedIndex, 1)
         this.closeDelete()
