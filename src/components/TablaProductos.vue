@@ -9,7 +9,7 @@
       <v-toolbar
         flat
       >
-        <v-toolbar-title>Gestiona tu Inventario</v-toolbar-title>
+        <v-toolbar-title>{{ titleProductos }}o</v-toolbar-title>
         <v-divider
           class="mx-4"
           inset
@@ -179,7 +179,9 @@
     created () {
       this.initialize()
     },
-
+    props : {
+        titleProductos : null,
+    },
     methods: {
       initialize () {
           this.axios.get(url).then(response => {

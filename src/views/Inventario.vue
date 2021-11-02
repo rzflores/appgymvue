@@ -1,7 +1,7 @@
 <template>
 
 <div>
-    <TablaProductos></TablaProductos>
+    <TablaProductos :titleProductos="Productos"></TablaProductos>
 </div>
 
 
